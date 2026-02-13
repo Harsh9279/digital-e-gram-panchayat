@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Services (User)</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="card">
+  <h2>Browse Services & Apply</h2>
+  <p class="small">Click apply to submit your application.</p>
+
+  <div class="row" style="margin-bottom:10px">
+    <input class="input" id="search" placeholder="Search service..." style="max-width:420px"/>
+    <button class="btn" id="refresh">Refresh</button>
+    <a class="btn" href="dashboard-user.html">Back</a>
+  </div>
+
+  <table class="table" id="servicesTable">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Description</th>
+        <th>Docs</th>
+        <th>Status</th>
+        <th>Apply</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage } from "./js/auth.js";
+  import { listServices } from "./js/services.js";
+  import { toast } from "./js/utils.js";
+
+  const ctx = await protectPage({allowedRoles:["user"]});
+  const uid = ctx.user.uid;
+
+  const tbody = document.querySelector("#servicesTable tbody");
+  let all = [];
+
+  function render(rows){
+    tbody.innerHTML = "";
+    for(const s of rows){
+      const docs = (s.requiredDocs||[]).join(", ");
+      const active = s.isActive ? "Active" : "Inactive";
+      const badgeCls = s.isActive ? "ok" : "danger";
+      const applyBtn = s.isActive
+        ? `<a class="btn primary" href="apply.html?serviceId=${s.id}">Apply</a>`
+        : `<span class="small">Disabled</span>`;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><div style="font-weight:700">${s.serviceName||"-"}</div></td>
+        <td class="small">${s.description||""}</td>
+        <td class="small">${docs || "-"}</td>
+        <td><span class="badge ${badgeCls}">${active}</span></td>
+        <td>${applyBtn}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  async function load(){
+    all = await listServices();
+    render(all);
+    toast("Services loaded.");
+  }
+
+  document.querySelector("#refresh").addEventListener("click", load);
+  document.querySelector("#search").addEventListener("input", (e)=>{
+    const q = e.target.value.toLowerCase();
+    render(all.filter(x => (x.serviceName||"").toLowerCase().includes(q)));
+  });
+
+  load();
+</script>
+
+</body>
+</html>

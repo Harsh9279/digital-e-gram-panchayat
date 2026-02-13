@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Services (Admin)</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="grid">
+  <div class="card">
+    <h2>Create Service</h2>
+    <p class="small">Admin can create Panchayat services/schemes.</p>
+
+    <form id="createServiceForm">
+      <div class="field">
+        <label>Service Name</label>
+        <input class="input" id="serviceName" required placeholder="e.g. Birth Certificate"/>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea class="input" id="description" placeholder="Explain service..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Required Documents (comma separated)</label>
+        <input class="input" id="docs" placeholder="Aadhar, Photo, Address proof"/>
+      </div>
+
+      <div class="field">
+        <label>Active?</label>
+        <select class="input" id="isActive">
+          <option value="true" selected>Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+
+      <button class="btn primary" type="submit">Create</button>
+      <a class="btn" href="dashboard-admin.html">Back</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>All Services</h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn" id="refresh">Refresh</button>
+    </div>
+
+    <table class="table" id="servicesTable">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Active</th>
+          <th>Docs</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage } from "./js/auth.js";
+  import { listServices, createService, updateService, deleteService } from "./js/services.js";
+  import { toast } from "./js/utils.js";
+
+  const ctx = await protectPage({allowedRoles:["admin"]});
+  const adminUid = ctx.user.uid;
+
+  const tbody = document.querySelector("#servicesTable tbody");
+
+  async function load(){
+    const rows = await listServices();
+    tbody.innerHTML="";
+    for(const s of rows){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><div style="font-weight:800">${s.serviceName||"-"}</div><div class="small">${s.description||""}</div></td>
+        <td><span class="badge ${s.isActive?"ok":"danger"}">${s.isActive?"Yes":"No"}</span></td>
+        <td class="small">${(s.requiredDocs||[]).join(", ")||"-"}</td>
+        <td>
+          <button class="btn" data-toggle="${s.id}">Toggle Active</button>
+          <button class="btn danger" data-del="${s.id}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    tbody.querySelectorAll("button[data-toggle]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const id = btn.getAttribute("data-toggle");
+        const service = rows.find(x=>x.id===id);
+        await updateService({serviceId:id, patch:{isActive: !service.isActive}, adminUid});
+        toast("Service updated.");
+        load();
+      });
+    });
+
+    tbody.querySelectorAll("button[data-del]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const id = btn.getAttribute("data-del");
+        if(!confirm("Delete service?")) return;
+        await deleteService({serviceId:id, adminUid});
+        toast("Service deleted.");
+        load();
+      });
+    });
+  }
+
+  document.querySelector("#refresh").addEventListener("click", load);
+
+  document.querySelector("#createServiceForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const serviceName = document.querySelector("#serviceName").value.trim();
+    const description = document.querySelector("#description").value.trim();
+    const docs = document.querySelector("#docs").value.trim();
+    const isActive = document.querySelector("#isActive").value === "true";
+    const requiredDocs = docs ? docs.split(",").map(x=>x.trim()).filter(Boolean) : [];
+
+    await createService({serviceName, description, requiredDocs, isActive, adminUid});
+    toast("Service created.");
+    e.target.reset();
+    load();
+  });
+
+  load();
+</script>
+
+</body>
+</html>

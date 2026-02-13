@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="grid">
+  <div class="card">
+    <h2>My Profile</h2>
+    <div id="profileBox" class="small"></div>
+    <hr/>
+    <a class="btn" href="dashboard-user.html">Back</a>
+  </div>
+
+  <div class="card">
+    <h2>Security</h2>
+    <p class="small">Profile update feature can be added as an enhancement.</p>
+  </div>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage } from "./js/auth.js";
+
+  const ctx = await protectPage({allowedRoles:["user"]});
+  const p = ctx.profile;
+
+  document.querySelector("#profileBox").innerHTML = `
+    <div><b>Name:</b> ${p.name||"-"}</div>
+    <div><b>Email:</b> ${p.email||"-"}</div>
+    <div><b>Phone:</b> ${p.phone||"-"}</div>
+    <div><b>Role:</b> <span class="mono">${p.role||"-"}</span></div>
+  `;
+</script>
+
+</body>
+</html>

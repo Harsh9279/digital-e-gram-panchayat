@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Services (Staff)</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="card">
+  <h2>Services (View Only)</h2>
+  <p class="small">Staff can view services. Only admin can create/update/delete.</p>
+
+  <div class="row" style="margin-bottom:10px">
+    <button class="btn" id="refresh">Refresh</button>
+    <a class="btn" href="dashboard-staff.html">Back</a>
+  </div>
+
+  <table class="table" id="servicesTable">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Description</th>
+        <th>Docs</th>
+        <th>Active</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage } from "./js/auth.js";
+  import { listServices } from "./js/services.js";
+  import { toast } from "./js/utils.js";
+
+  await protectPage({allowedRoles:["staff"]});
+  const tbody = document.querySelector("#servicesTable tbody");
+
+  async function load(){
+    const rows = await listServices();
+    tbody.innerHTML="";
+    for(const s of rows){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><div style="font-weight:700">${s.serviceName||"-"}</div></td>
+        <td class="small">${s.description||""}</td>
+        <td class="small">${(s.requiredDocs||[]).join(", ")||"-"}</td>
+        <td><span class="badge ${s.isActive?"ok":"danger"}">${s.isActive?"Yes":"No"}</span></td>
+      `;
+      tbody.appendChild(tr);
+    }
+    toast("Services loaded.");
+  }
+  document.querySelector("#refresh").addEventListener("click", load);
+  load();
+</script>
+
+</body>
+</html>

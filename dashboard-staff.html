@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="grid">
+  <div class="card">
+    <h2>Staff Dashboard</h2>
+    <p class="small">View services and update application status.</p>
+
+    <div class="row">
+      <a class="btn" href="services-staff.html">View Services</a>
+      <a class="btn primary" href="staff-applications.html">Applications</a>
+      <button class="btn danger" id="logoutBtn">Logout</button>
+    </div>
+    <hr/>
+    <div id="who" class="small"></div>
+  </div>
+
+  <div class="card">
+    <h2>Staff Notes</h2>
+    <p class="small">Staff can update application status but cannot delete services.</p>
+  </div>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage, logoutUser } from "./js/auth.js";
+  document.querySelector("#logoutBtn").addEventListener("click", logoutUser);
+  const ctx = await protectPage({allowedRoles:["staff"]});
+  document.querySelector("#who").innerHTML = `Logged in as <b>${ctx.profile.name}</b> (<span class="mono">${ctx.profile.role}</span>)`;
+</script>
+
+</body>
+</html>

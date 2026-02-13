@@ -1,0 +1,136 @@
+:root{
+  --bg:#0b1020;
+  --card:#111a33;
+  --text:#e7ecff;
+  --muted:#aab4e6;
+  --accent:#5ce1e6;
+  --danger:#ff5c7a;
+  --ok:#52d39b;
+  --warn:#f6c453;
+  --border: rgba(255,255,255,0.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1200px 600px at 15% 10%, rgba(92,225,230,0.18), transparent 60%),
+              radial-gradient(900px 500px at 85% 15%, rgba(82,211,155,0.12), transparent 60%),
+              var(--bg);
+  color: var(--text);
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{opacity:.9}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+.nav{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px;border:1px solid var(--border);
+  background: rgba(17,26,51,0.72); backdrop-filter: blur(10px);
+  border-radius:16px;
+}
+.brand{display:flex;gap:10px;align-items:center}
+.brand .logo{
+  width:36px;height:36px;border-radius:10px;
+  background: linear-gradient(135deg, var(--accent), var(--ok));
+  box-shadow: 0 10px 35px rgba(92,225,230,0.18);
+}
+.brand h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+.nav .links{display:flex;gap:12px;align-items:center}
+.btn{
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color:var(--text);
+  padding:10px 12px;border-radius:12px;
+  cursor:pointer;
+  transition: transform .08s ease, opacity .2s ease;
+}
+.btn:hover{opacity:.95}
+.btn:active{transform: translateY(1px)}
+.btn.primary{
+  border:1px solid rgba(92,225,230,0.55);
+  background: rgba(92,225,230,0.18);
+}
+.btn.danger{
+  border:1px solid rgba(255,92,122,0.55);
+  background: rgba(255,92,122,0.14);
+}
+.grid{
+  display:grid;
+  grid-template-columns: 1.25fr .75fr;
+  gap:18px;
+  margin-top:18px;
+}
+@media(max-width:920px){
+  .grid{grid-template-columns:1fr}
+}
+.card{
+  border:1px solid var(--border);
+  background: rgba(17,26,51,0.72); backdrop-filter: blur(10px);
+  border-radius:18px;
+  padding:16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.24);
+}
+.card h2{margin:0 0 10px;font-size:16px}
+.small{color:var(--muted);font-size:13px;line-height:1.45}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.input, select, textarea{
+  width:100%;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  outline:none;
+  background: rgba(255,255,255,0.06);
+  color:var(--text);
+}
+textarea{min-height:90px;resize:vertical}
+label{font-size:13px;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.table{
+  width:100%;
+  border-collapse: collapse;
+  overflow:hidden;
+  border-radius:14px;
+}
+.table th, .table td{
+  border-bottom:1px solid var(--border);
+  padding:10px 10px;
+  font-size:13px;
+  vertical-align:top;
+}
+.table th{color:var(--muted);font-weight:600;text-align:left}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 9px;border-radius:999px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  font-size:12px;color:var(--text);
+}
+.badge.ok{border-color: rgba(82,211,155,0.45); background: rgba(82,211,155,0.15)}
+.badge.warn{border-color: rgba(246,196,83,0.45); background: rgba(246,196,83,0.14)}
+.badge.danger{border-color: rgba(255,92,122,0.45); background: rgba(255,92,122,0.13)}
+.toast{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  max-width: 360px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border:1px solid var(--border);
+  background: rgba(17,26,51,0.92);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  color: var(--text);
+  display:none;
+}
+hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+.kpi{
+  display:flex;gap:10px;flex-wrap:wrap
+}
+.kpi .box{
+  flex:1;
+  min-width:160px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  border-radius:16px;
+  padding:12px;
+}
+.kpi .box .v{font-size:20px;font-weight:800;margin-top:6px}
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Applications (Staff)</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="card">
+  <h2>Applications (Staff)</h2>
+  <p class="small">Update status of citizen applications.</p>
+
+  <div class="row" style="margin-bottom:10px">
+    <button class="btn" id="refresh">Refresh</button>
+    <a class="btn" href="dashboard-staff.html">Back</a>
+  </div>
+
+  <table class="table" id="appsTable">
+    <thead>
+      <tr>
+        <th>Applicant</th>
+        <th>Service</th>
+        <th>Status</th>
+        <th>Remarks</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage } from "./js/auth.js";
+  import { listAllApplications, updateApplicationStatus } from "./js/applications.js";
+  import { statusBadge, toast } from "./js/utils.js";
+
+  const ctx = await protectPage({allowedRoles:["staff"]});
+  const uid = ctx.user.uid;
+
+  const tbody = document.querySelector("#appsTable tbody");
+
+  function rowUI(a){
+    const b = statusBadge(a.status);
+    return `
+      <td class="small">${a.applicantName||"-"}</td>
+      <td><div style="font-weight:700">${a.serviceName||"-"}</div></td>
+      <td><span class="badge ${b.cls}">${b.label}</span></td>
+      <td class="small">${a.remarks||"-"}</td>
+      <td>
+        <select class="input" data-id="${a.id}" style="max-width:170px;display:inline-block">
+          <option ${a.status==="Pending"?"selected":""}>Pending</option>
+          <option ${a.status==="Under Review"?"selected":""}>Under Review</option>
+          <option ${a.status==="Approved"?"selected":""}>Approved</option>
+          <option ${a.status==="Rejected"?"selected":""}>Rejected</option>
+        </select>
+        <input class="input" data-remarks="${a.id}" placeholder="Remarks" style="max-width:180px;display:inline-block;margin-top:6px"/>
+        <button class="btn primary" data-save="${a.id}" style="margin-top:6px">Save</button>
+      </td>
+    `;
+  }
+
+  async function load(){
+    const apps = await listAllApplications();
+    tbody.innerHTML="";
+    for(const a of apps){
+      const tr = document.createElement("tr");
+      tr.innerHTML = rowUI(a);
+      tbody.appendChild(tr);
+    }
+
+    tbody.querySelectorAll("button[data-save]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const id = btn.getAttribute("data-save");
+        const sel = tbody.querySelector(`select[data-id="${id}"]`);
+        const rem = tbody.querySelector(`input[data-remarks="${id}"]`);
+        await updateApplicationStatus({
+          applicationId: id,
+          status: sel.value,
+          remarks: rem.value.trim(),
+          updatedBy: uid,
+          role: "staff"
+        });
+        toast("Status updated.");
+        load();
+      });
+    });
+
+    toast("Applications loaded.");
+  }
+
+  document.querySelector("#refresh").addEventListener("click", load);
+  load();
+</script>
+
+</body>
+</html>

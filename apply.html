@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apply Service</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"></div>
+        <h1>Digital E Gram Panchayat</h1>
+      </div>
+      <div class="links">
+        <a class="btn" href="index.html">Home</a>
+        <a class="btn" href="services.html">Services</a>
+        <a class="btn primary" href="login.html">Login</a>
+      </div>
+    </div>
+
+    <div class="grid">
+  <div class="card">
+    <h2>Apply for Service</h2>
+    <p class="small">Fill details and submit application.</p>
+
+    <form id="applyForm">
+      <div class="field">
+        <label>Applicant Name</label>
+        <input class="input" id="applicantName" required/>
+      </div>
+
+      <div class="field">
+        <label>Service</label>
+        <input class="input" id="serviceName" disabled/>
+      </div>
+
+      <div class="field">
+        <label>Required Documents (read-only)</label>
+        <textarea class="input" id="docs" disabled></textarea>
+      </div>
+
+      <button class="btn primary" type="submit">Submit Application</button>
+      <a class="btn" href="services-user.html">Back</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Note</h2>
+    <p class="small">After submission, track status in <b>My Applications</b>.</p>
+  </div>
+</div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script type="module">
+  import { protectPage } from "./js/auth.js";
+  import { listServices } from "./js/services.js";
+  import { applyForService } from "./js/applications.js";
+  import { requireQueryParam, toast } from "./js/utils.js";
+
+  const ctx = await protectPage({allowedRoles:["user"]});
+  const uid = ctx.user.uid;
+
+  const serviceId = requireQueryParam("serviceId");
+  const services = await listServices();
+  const service = services.find(s=>s.id===serviceId);
+  if(!service){
+    toast("Service not found.", false);
+    window.location.href = "services-user.html";
+  }
+
+  document.querySelector("#serviceName").value = service.serviceName || "-";
+  document.querySelector("#docs").value = (service.requiredDocs||[]).join("\n") || "-";
+  document.querySelector("#applicantName").value = ctx.profile.name || "";
+
+  document.querySelector("#applyForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    if(!service.isActive){
+      toast("Service inactive, cannot apply.", false);
+      return;
+    }
+    const applicantName = document.querySelector("#applicantName").value.trim();
+    const appId = await applyForService({
+      userId: uid,
+      applicantName,
+      serviceId: service.id,
+      serviceName: service.serviceName
+    });
+    toast("Application submitted. ID: " + appId);
+    window.location.href = "my-applications.html";
+  });
+</script>
+
+</body>
+</html>
